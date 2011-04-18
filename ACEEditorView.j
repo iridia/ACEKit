@@ -228,17 +228,23 @@ var kACEEditorViewThemeResource = function (aName) { return [[CPBundle bundleFor
 }
 
 - (void) setThemeName:(CPString)newName {
-		
+	
+	var propagateKVO = (![themeName isEqual:newName]);
+	
+	if (propagateKVO) [self willChangeValueForKey:@"newName"];
 	themeName = newName;
+	if (propagateKVO) [self didChangeValueForKey:@"newName"];
 	
 	if (![self editorNamespace])
-	return; // save this for later
-	
-	//	First inject something
+	return; // So in the future this can get called again and KVO will NOT fire, but the change will get into the editor nevertheless
+
 	var themeData = [[[self class] defaultThemes] objectForKey:themeName];
 	
-	if (!themeData)
-	[CPException raise:CPInternalInconsistencyException reason:[CPString stringWithFormat:@"Can’t find data for theme named %@ not found at all.", themeName]];
+	if (!themeData) {
+		
+		[CPException raise:CPInternalInconsistencyException reason:[CPString stringWithFormat:@"Can’t find data for theme named %@ not found at all.", themeName]];
+		
+	}	
 	
 	var internalThemeName = [themeData objectForKey:kACEEditorViewThemeInternalName];
 	var themeLocation = [themeData objectForKey:kACEEditorViewThemeFileLocation];
@@ -251,7 +257,7 @@ var kACEEditorViewThemeResource = function (aName) { return [[CPBundle bundleFor
 		
 		} else {
 		
-			CPLog(@"did not really set the theme successfully");
+			CPLog(@"Warning: did not set the theme successfully");
 		
 		}
 		
