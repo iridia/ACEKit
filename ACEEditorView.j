@@ -228,7 +228,7 @@ var kACEEditorViewThemeFileLocationPrefix = @"ace/build/src/";
 var kACEEditorViewResource = function (aName) { return [[CPBundle bundleForClass:[ACEEditorView class]] pathForResource:aName]; };
 var kACEEditorViewThemeResource = function (aName) { return [[CPBundle bundleForClass:[ACEEditorView class]] pathForResource:(kACEEditorViewThemeFileLocationPrefix + "/" + aName + ".js")]; };
 
-@implementation ACEEditorView (ThemingSupport) {
+@implementation ACEEditorView (ThemingSupport)
 
 + (CPDictionary) defaultThemes {
 	
@@ -314,7 +314,7 @@ var kACEEditorViewModeInternalName = @"kACEEditorViewModeInternalName";
 var kACEEditorViewModeFileLocationPrefix = @"ace/build/src/";
 var kACEEditorViewModeResource = function (aName) { return [[CPBundle bundleForClass:[ACEEditorView class]] pathForResource:(kACEEditorViewThemeFileLocationPrefix + "/" + aName + ".js")]; };
 
-@implementation ACEEditorView (SyntaxHighlightingSupport) {
+@implementation ACEEditorView (SyntaxHighlightingSupport)
 
 + (CPDictionary) defaultModes {
 
@@ -380,6 +380,31 @@ var kACEEditorViewModeResource = function (aName) { return [[CPBundle bundleForC
 
 	}, [self DOMWindow].document);
 
+}
+
+@end
+
+
+
+
+
+@implementation ACEEditorView (UndoAndRedo)
+
+//	I am not sure if this is adequare, because actually a lot of state is delegated to ACE itself; we are not exposing an undo manager or anything like that
+//	Actually this part does not work with Objective-J / Cappuccino”s global undo / redo at all
+
+- (void) undo:(id)sender {
+	
+	if ([self editorObject])
+	[self editorObject].undo();
+	
+}
+
+- (void) redo:(id)sender {
+	
+	if ([self editorObject])
+	[self editorObject].redo();
+	
 }
 
 @end
