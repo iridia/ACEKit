@@ -49,7 +49,7 @@
 	[self setFrameLoadDelegate:self];
 	[self setMainFrameURL:[[CPBundle bundleForClass:[self class]] pathForResource:"ace.html"]];
 	
-	[self setThemeName:@"theme-clouds_midnight"];
+	[self setThemeName:@"theme-dawn"];
 	
 }
 
@@ -196,25 +196,34 @@ var kACEEditorViewThemeResource = function (aName) { return [[CPBundle bundleFor
 
 + (CPDictionary) defaultThemes {
 	
-	return [CPDictionary dictionaryWithJSObject:{
+	var transformedObject = {};
+	var enqueue = function (shortName, name, internalName) {
+		
+		transformedObject[shortName] = {
+		
+			kACEEditorViewThemeTitle: name,
+			kACEEditorViewThemeFileLocation: kACEEditorViewThemeResource(shortName),
+			kACEEditorViewThemeInternalName: internalName			
+		
+		};
 	
-		"theme-clouds": {
-			
-			kACEEditorViewThemeTitle: "Clouds",
-			kACEEditorViewThemeFileLocation: kACEEditorViewThemeResource("theme-clouds"),
-			kACEEditorViewThemeInternalName: "ace/theme/clouds"
-			
-		},
-		
-		"theme-clouds_midnight": {
-			
-			kACEEditorViewThemeTitle: "Clouds (Midnight)",
-			kACEEditorViewThemeFileLocation: kACEEditorViewThemeResource("theme-clouds_midnight"),
-			kACEEditorViewThemeInternalName: "ace/theme/clouds_midnight"
-			
-		}
-		
-	} recursively:YES]; // This is super important
+	};
+	
+	enqueue("theme-clouds", "Clouds", "ace/theme/clouds");
+	enqueue("theme-clouds_midnight", "Clouds (Midnight)", "ace/theme/clouds_midnight");
+	enqueue("theme-cobalt", "Cobalt", "ace/theme/cobalt");
+	enqueue("theme-dawn", "Dawn", "ace/theme/dawn");
+	enqueue("theme-eclipse", "Eclipse", "ace/theme/eclipse");
+	enqueue("theme-idle_fingers", "Idle Fingers", "ace/theme/idle_fingers");
+	enqueue("theme-kr_theme", "KR Theme", "ace/theme/kr_theme");
+	enqueue("theme-merbivore", "Merbivore", "ace/theme/merbivore");
+	enqueue("theme-merbivore_soft", "Merbivore (Soft)", "ace/theme/merbivore_soft");
+	enqueue("theme-mono_industrial", "Mono (Industrial)", "ace/theme/mono_industrial");
+	enqueue("theme-pastel_on_dark", "Pastel On Dark", "ace/theme/pastel_on_dark");
+	enqueue("theme-twilight", "Twilight", "ace/theme/twilight");
+	enqueue("theme-vibrant_ink", "Vibrant Ink", "ace/theme/vibrant_ink");
+	
+	return [CPDictionary dictionaryWithJSObject:transformedObject recursively:YES]; // This is super important
 	
 }
 
