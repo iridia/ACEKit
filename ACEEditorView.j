@@ -10,6 +10,7 @@
 	id actualDocument;	// The DOM element from the iframe’s window
 	
 	CPString themeName @accessors; // actually setThemeName would work too
+	CPString modeName @accessors; // actually setModeName would work too
 	
 }
 
@@ -228,17 +229,23 @@ var kACEEditorViewThemeResource = function (aName) { return [[CPBundle bundleFor
 }
 
 - (void) setThemeName:(CPString)newName {
-		
+	
+	var propagateKVO = (![themeName isEqual:newName]);
+	
+	if (propagateKVO) [self willChangeValueForKey:@"themeName"];
 	themeName = newName;
+	if (propagateKVO) [self didChangeValueForKey:@"themeName"];
 	
 	if (![self editorNamespace])
-	return; // save this for later
-	
-	//	First inject something
+	return; // So in the future this can get called again and KVO will NOT fire, but the change will get into the editor nevertheless
+
 	var themeData = [[[self class] defaultThemes] objectForKey:themeName];
 	
-	if (!themeData)
-	[CPException raise:CPInternalInconsistencyException reason:[CPString stringWithFormat:@"Can’t find data for theme named %@ not found at all.", themeName]];
+	if (!themeData) {
+		
+		[CPException raise:CPInternalInconsistencyException reason:[CPString stringWithFormat:@"Can’t find data for theme named %@.", themeName]];
+		
+	}	
 	
 	var internalThemeName = [themeData objectForKey:kACEEditorViewThemeInternalName];
 	var themeLocation = [themeData objectForKey:kACEEditorViewThemeFileLocation];
@@ -251,12 +258,93 @@ var kACEEditorViewThemeResource = function (aName) { return [[CPBundle bundleFor
 		
 		} else {
 		
-			CPLog(@"did not really set the theme successfully");
+			CPLog(@"Warning: did not set the theme successfully");
 		
 		}
 		
 	}, [self DOMWindow].document);
 	
+}
+
+@end
+
+
+
+
+
+var kACEEditorViewModeTitle = @"kACEEditorViewModeTitle";
+var kACEEditorViewModeFileLocation = @"kACEEditorViewModeFileLocation";
+var kACEEditorViewModeInternalName = @"kACEEditorViewModeInternalName";
+
+var kACEEditorViewModeFileLocationPrefix = @"ace/build/src/";
+var kACEEditorViewModeResource = function (aName) { return [[CPBundle bundleForClass:[ACEEditorView class]] pathForResource:(kACEEditorViewThemeFileLocationPrefix + "/" + aName + ".js")]; };
+
+@implementation ACEEditorView (SyntaxHighlightingSupport) {
+
++ (CPDictionary) defaultModes {
+
+	var transformedObject = {};
+	var enqueue = function (shortName, name, internalName) {
+
+		transformedObject[shortName] = {
+
+			kACEEditorViewModeTitle: name,
+			kACEEditorViewModeFileLocation: kACEEditorViewModeResource(shortName),
+			kACEEditorViewModeInternalName: internalName
+
+		};
+
+	};
+	
+	enqueue("mode-c_cpp", "C++", "ace/mode/c_cpp");
+	enqueue("mode-coffee", "CoffeeScript", "ace/mode/coffee");
+	enqueue("mode-csharp", "C#", "ace/mode/csharp");
+	enqueue("mode-css", "CSS", "ace/mode/css");
+	enqueue("mode-html", "HTML", "ace/mode/html");
+	enqueue("mode-java", "Java", "ace/mode/java");
+	enqueue("mode-javascript", "JavaScript", "ace/mode/javascript");
+	enqueue("mode-perl", "Perl", "ace/mode/perl");
+	enqueue("mode-php", "PHP", "ace/mode/php");
+	enqueue("mode-python", "Python", "ace/mode/python");
+	enqueue("mode-ruby", "Ruby", "ace/mode/ruby");
+	enqueue("mode-svg", "SVG", "ace/mode/svg");
+	enqueue("mode-xml", "XML", "ace/mode/xml");
+
+	return [CPDictionary dictionaryWithJSObject:transformedObject recursively:YES]; // This is super important
+
+}
+
+- (void) setModeName:(CPString)newName {
+
+	var propagateKVO = (![themeName isEqual:newName]);
+
+	if (propagateKVO) [self willChangeValueForKey:@"modeName"];
+	modeName = newName;
+	if (propagateKVO) [self didChangeValueForKey:@"modeName"];
+
+	if (![self editorNamespace])
+	return; // So in the future this can get called again and KVO will NOT fire, but the change will get into the editor nevertheless
+
+	var modeData = [[[self class] defaultModes] objectForKey:modeName];
+
+	if (!modeData) {
+
+		[CPException raise:CPInternalInconsistencyException reason:[CPString stringWithFormat:@"Can’t find data for mode named %@.", themeName]];
+
+	}	
+
+	var internalModeName = [modeData objectForKey:kACEEditorViewModeInternalName];
+	var modeLocation = [modeData objectForKey:kACEEditorViewModeFileLocation];
+
+	ACELoadScript(modeLocation, function () {
+		
+		//	Alright, I am not bothering, since in ACE speak, one must first create a Mode object, but we actually loaded the script that made the class *within the editor*
+		//	In that case it is better to just throw a helper function there, and make it load things on its own behalf!
+		
+		[self DOMWindow].ACEEditorSetModeName(internalModeName);
+
+	}, [self DOMWindow].document);
+
 }
 
 @end
