@@ -31,8 +31,8 @@
 		
 			function ACCEditorViewInitialize () {
 			
-				ace.edit("editor");
-				return ace;
+				window.initializedACEEditor = ace.edit("editor");
+				return window.initializedACEEditor;
 			
 			}
 			
