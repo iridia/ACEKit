@@ -11,12 +11,19 @@
 	
 	CPString themeName @accessors; // actually setThemeName would work too
 	CPString modeName @accessors; // actually setModeName would work too
+	CPString contentText @accessors;
 	
 }
 
 - (id) editorNamespace {
 	
 	return [self objectByEvaluatingJavaScriptFromString:@"ACENamespace()"];
+	
+}
+
+- (id) editorSession {
+	
+	return [self editor] && [self editor].getSession() || nil;
 	
 }
 
@@ -58,6 +65,7 @@
 	
 	[self setEditor:[self objectByEvaluatingJavaScriptFromString:@"ACCEditorViewInitialize()"]];
 	[self setThemeName:[self themeName]];
+	[self setContentText:[self contentText]];
 	
 }
 
@@ -172,6 +180,33 @@
 	
 	});
 
+}
+
+- (CPString) contentText {
+	
+	if (![self editor])
+	return contentText;
+	
+	var retrievedValue = [self editor].getSession().getValue();
+	[self setContentText:retrievedValue];
+	
+	return contentText;
+	
+}
+
+- (void) setContentText:(CPString)newContentText {
+	
+	var propagateKVO = (![contentText isEqual:newContentText]);
+	
+	if (propagateKVO) [self willChangeValueForKey:@"themeName"];
+	contentText = newContentText;
+	if (propagateKVO) [self didChangeValueForKey:@"themeName"];
+	
+	if (![self editorSession])
+	return; // So in the future this can get called again and KVO will NOT fire, but the change will get into the editor nevertheless
+
+	[self editorSession].setValue(contentText);
+	
 }
 
 @end
