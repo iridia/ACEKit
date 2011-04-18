@@ -6,7 +6,6 @@
 @implementation ACEEditorView : CPWebView {
 	
 	id editor @accessors;
-	
 	id actualWindow;	// the window passed from the iframe
 	id actualDocument;	// The DOM element from the iframe’s window
 	
@@ -93,7 +92,7 @@
 
 
 
-- (void) setEditor:newEditor {
+- (void) setEditor:(id)newEditor {
 
 	if (editor === newEditor)
 	return;
