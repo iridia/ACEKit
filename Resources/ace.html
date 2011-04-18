@@ -36,6 +36,12 @@
 			
 			}
 			
+			function ACEEditor () {
+				
+				return window.initializedACEEditor;
+				
+			}
+			
 			function ACENamespace () {
 				
 				return ace;
@@ -48,6 +54,15 @@
 				
 				if (editorElement)
 				editorElement.focus();
+				
+			}
+			
+			function ACEEditorSetModeName (aName) {
+				
+				var internalMode = require(aName).Mode;
+
+				if (window.initializedACEEditor)
+				window.initializedACEEditor.getSession().setMode(new internalMode());
 				
 			}
 		
