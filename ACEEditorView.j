@@ -65,7 +65,7 @@
 	
 	[self setEditor:[self objectByEvaluatingJavaScriptFromString:@"ACCEditorViewInitialize()"]];
 	[self setThemeName:[self themeName]];
-	[self setContentText:[self contentText]];
+	[self setContentText:contentText]; // don’t go thru the getter
 	
 }
 
@@ -179,6 +179,8 @@
 		actualWindow.focus();
 	
 	});
+	
+	[self setContentText:contentText];
 
 }
 
@@ -202,10 +204,11 @@
 	contentText = newContentText;
 	if (propagateKVO) [self didChangeValueForKey:@"themeName"];
 	
-	if (![self editorSession])
-	return; // So in the future this can get called again and KVO will NOT fire, but the change will get into the editor nevertheless
-
-	[self editorSession].setValue(contentText);
+	if ([self editorSession]) {
+		
+		[self editorSession].setValue((contentText || @""));
+	
+	}
 	
 }
 
