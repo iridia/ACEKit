@@ -141,7 +141,7 @@
 	};
 	
 	bind(actualDocument, "blur", function (event) {
-
+		
 		actualWindow.blur();
 		window.focus(); //	So, the key events get through
 		[self resignFirstResponder];
@@ -150,12 +150,14 @@
 	
 	bind(actualWindow, "blur", function (event) {
 		
+		editor.onBlur();
+		
 		window.focus();
 		
 	});
 	
 	bind(actualDocument, "focus", function (event) {
-	
+		
 		if (![[self window] isKeyWindow])
 		[[self window] makeKeyAndOrderFront:self];
 	
@@ -165,7 +167,7 @@
 	});
 	
 	bind(actualWindow, "focus", function (event) {
-		
+				
 		if (![[self window] isKeyWindow])
 		[[self window] makeKeyAndOrderFront:self];
 		
@@ -181,6 +183,9 @@
 	});
 	
 	[self setContentText:contentText];
+	
+	if (themeName) [self setThemeName:themeName];
+	if (modeName) [self setModeName:modeName];
 
 }
 
